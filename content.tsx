@@ -113,10 +113,16 @@ window.addEventListener("load", () => {
 	}, 500)
 	debounceLoad()
 	// 监听body中元素有更新
-	// const observer = new MutationObserver((mutationsList, observer) => {
-	// 	debounceLoad()
-	// });
-	// observer.observe(document.body, { childList: true, subtree: false, attributes: false });
+	let status = false
+	const observer = new MutationObserver((mutationsList, observer) => {
+		if (status) return;
+		status = true;
+		setTimeout(() => {
+			debounceLoad()
+		}, 1000);
+		
+	});
+	observer.observe(document.body, { childList: true, subtree: false, attributes: false });
 })
 
 export default function InitContent() {
@@ -169,7 +175,6 @@ export default function InitContent() {
 						}
 					})
 				})
-				console.log('result---', result)
 				setDisplayData(result)
 			}
 		} else {

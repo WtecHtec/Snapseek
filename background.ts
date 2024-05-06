@@ -27,6 +27,7 @@ async function getSnapSeekData(sendResponse) {
 			return new Date(item).getTime() + MAX_TIME >= new Date().getTime()
 		})
 		keys.map(key => {
+			snapData[key] && snapData[key].sort(( a, b) => b.time - a.time)
 			result[key] = snapData[key]
 		})
 	}
