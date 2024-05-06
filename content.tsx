@@ -2,12 +2,6 @@ import type { PlasmoCSConfig } from "plasmo"
 import { useEffect, useState } from "react"
 import cssText from 'data-text:~content.css';
 import { ICON_WEB_ITEM } from './icons'
-// {
-// 	2024-04-02: [
-// 		{
-// 		}
-// 	]
-// }
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
   all_frames: true
@@ -187,10 +181,19 @@ export default function InitContent() {
 	function closeMask(e) {
 		e.target.className === 'snap-seek-mask' && setOpen(false);
 	}
+
+	const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+
+		if ([27, 37, 38, 39, 40, 13].includes(event.keyCode)) {
+				return;
+		}
+		if (event.metaKey) return;
+		event.stopPropagation();
+	};
 	return ( <>
 		 { !open ? null : <div className="snap-seek-mask" onClick={ closeMask }>
 					<div cmdk-root="" >
-						<input cmdk-input="" autoFocus onChange={handleSearch} placeholder="Search content or title or url" />
+						<input cmdk-input=""  onKeyDown={handleKeyDown} autoFocus onChange={handleSearch} placeholder="Search content or title or url" />
 					<div cmdk-list="">
 						{
 							Object.keys(displayData).length <= 0 

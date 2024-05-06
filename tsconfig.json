@@ -5,6 +5,7 @@
   ],
   "include": [
     ".plasmo/index.d.ts",
+		"node_modules/@types/chrome/index.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
   ],
