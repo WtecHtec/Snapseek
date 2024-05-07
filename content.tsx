@@ -2,6 +2,10 @@ import type { PlasmoCSConfig } from "plasmo"
 import { useEffect, useState } from "react"
 import cssText from 'data-text:~content.css';
 import { ICON_WEB_ITEM } from './icons'
+import { debounce, formatDate, getPageInfo } from "~uitls";
+import Command from "~components/command";
+import { getSnapSeekData } from "~model";
+import HistorySeek from "~historyseek";
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
   all_frames: true
@@ -13,82 +17,7 @@ export const getStyle = () => {
 };
 
 
-function getPageInfo() {
-  const pageText = document.body.innerText.trim()
-  const pageIcon = document.querySelector('link[rel="icon"]')?.getAttribute('href')
-  const pageUrl = window.location.href
-	const pageTitle = document.title
-  return {
-    text: pageText,
-    icon: pageIcon,
-    url: pageUrl,
-		title: pageTitle,
-		time: new Date().getTime(),
-  }
-}
 
-
-
-function debounce(func: Function, delay: number) {
-  let timer: ReturnType<typeof setTimeout> | null = null
-  return function (this: any, ...args: any[]) {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      func.apply(this, args)
-      timer = null
-    }, delay)
-  }
-}
-
-
-
-function formatDate(date: Date, fmt: string) {
-  const o: { [key: string]: number } = {
-    "M+": date.getMonth() + 1, //月份   
-    "d+": date.getDate(), //日   
-    "h+": date.getHours() % 12 === 0 ? 12 : date.getHours() % 12, //小时   
-    "H+": date.getHours(), //小时   
-    "m+": date.getMinutes(), //分   
-    "s+": date.getSeconds(), //秒   
-    "q+": Math.floor((date.getMonth() + 3) / 3), //季度   
-    S: date.getMilliseconds() //毫秒   
-  };
-  if (/(y+)/.test(fmt)) {
-    fmt = fmt.replace(
-      RegExp.$1,
-      (date.getFullYear() + "").substr(4 - RegExp.$1.length)
-    );
-  }
-  for (let k in o) {
-    if (new RegExp("(" + k + ")").test(fmt)) {
-      fmt = fmt.replace(
-        RegExp.$1,
-        RegExp.$1.length == 1
-          ? o[k] + ""
-          : ("00" + o[k]).substr(("" + o[k]).length)
-      );
-    }
-  }
-  return fmt;
-}
-
-
-
-function getSnapSeekData() {
-	return new Promise(resolve => {
-		chrome.runtime.sendMessage( { action: 'GET_SNAP',},).then( async (data) => {
-			if (data && data.data) {
-				resolve(data.data)
-			} else {
-				resolve({})
-			}
-		}).catch((err) => {
-			console.log('error', err)
-			resolve({})
-		})
-	})
-	
-}
 
 async function SaveSnapSeek() {
 	const info = getPageInfo()
@@ -197,22 +126,24 @@ export default function InitContent() {
 		event.stopPropagation();
 	};
 	return ( <>
+			
 		 { !open ? null : <div className="snap-seek-mask" onClick={ closeMask }>
-					<div cmdk-root="" >
-						<input cmdk-input=""  onKeyDown={handleKeyDown} autoFocus onChange={handleSearch} placeholder="Search content or title or url" />
-					<div cmdk-list="">
+					<HistorySeek></HistorySeek>
+					<div snap-seek-cmdk-root=""  style={{ display: 'none'}}>
+						<input snap-seek-cmdk-input=""  onKeyDown={handleKeyDown} autoFocus onChange={handleSearch} placeholder="Search content or title or url" />
+					<div snap-seek-cmdk-list="">
 						{
 							Object.keys(displayData).length <= 0 
-								? <div cmdk-empty="">No results found.</div>
+								? <div snap-seek-cmdk-empty="">No results found.</div>
 								: Object.keys(displayData).map(item =><>
 									 {
 										displayData[item].length === 0 
 											? null
-											: <div cmdk-group="">
-												<div cmdk-group-heading="">{item}</div> 
+											: <div snap-seek-cmdk-group="">
+												<div snap-seek-cmdk-group-heading="">{item}</div> 
 												{
 													displayData[item].map(({ title, url,  icon, searchTags, text}) =>
-															<div onClick={() => window.open(url, '_blank')} cmdk-item="">
+															<div onClick={() => window.open(url, '_blank')} snap-seek-cmdk-item="">
 																<div className="snap-seek-item"> 
 																{
 																	icon 
@@ -225,7 +156,7 @@ export default function InitContent() {
 																{
 																	searchTags  && searchTags.length
 																		? <div className="snap-seek-item-search">
-																			{searchTags.map((tag) => <div className="tag" >{tag[0]} <span>{tag[1]}</span> {tag[2]}</div>) }
+																			{searchTags.map((tag) => <div className="snap-seek-tag" >{tag[0]} <span>{tag[1]}</span> {tag[2]}</div>) }
 																		</div>
 																		: <div className="snap-seek-text-content">{text}</div>
 																}
@@ -238,7 +169,7 @@ export default function InitContent() {
 									)
 						}
 					</div>
-					<div cmdk-motionshot-footer="">
+					<div snap-seek-cmdk-motionshot-footer="">
 						<div>
 							Latest Snapshot Data: 7 Days
 						</div>
