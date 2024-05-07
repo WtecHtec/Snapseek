@@ -158,7 +158,7 @@ export default function InitContent() {
 			if (snapsData && Object.keys(snapsData).length) {
 				const result = {}
 				Object.keys(snapsData).map(key => {
-					result[key] = snapsData[key].filter(item => {
+					const datas = snapsData[key].filter(item => {
 						return item.title.includes(value) || item.text.includes(value) || item.url.includes(value)
 					}).map((item) => {
 						const diff = 5
@@ -174,6 +174,7 @@ export default function InitContent() {
 							...item,
 						}
 					})
+					datas.length && (result[key] = datas);
 				})
 				setDisplayData(result)
 			}
