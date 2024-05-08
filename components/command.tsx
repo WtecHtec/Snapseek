@@ -1,32 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Search from "./search";
-import { debounce, getUUID } from "~uitls";
+import { debounce } from "~uitls";
 
-function Store() {
-	const listers = {}
-
-	const on = (name, fn) => {
-		 if (!listers[name]) listers[name] = []
-		 listers[name].push(fn)
-	}
-	const off = (name, fn) => {
-		if (listers[name]) {
-			listers[name] = listers[name].filter((item) => item !== fn)
-		}
-	}
-	const emit = (name, ...args) => {
-		if (listers[name]) {
-			listers[name].forEach((fn) => fn(...args))
-		}
-	}
-	return {
-		listers,
-		on,
-		off,
-		emit,
-	}
-}
 
 function useCommand(store, name): [any ,any, any] {
 	const [searchResult, setSearchResult] = useState([])
@@ -49,6 +25,31 @@ function useCommand(store, name): [any ,any, any] {
 
 
 const Command = () => {
+
+	function Store() {
+		const listers = {}
+	
+		const on = (name, fn) => {
+			 if (!listers[name]) listers[name] = []
+			 listers[name].push(fn)
+		}
+		const off = (name, fn) => {
+			if (listers[name]) {
+				listers[name] = listers[name].filter((item) => item !== fn)
+			}
+		}
+		const emit = (name, ...args) => {
+			if (listers[name]) {
+				listers[name].forEach((fn) => fn(...args))
+			}
+		}
+		return {
+			listers,
+			on,
+			off,
+			emit,
+		}
+	}
 
 	let  searchDatas = []
 	const store =  Store()
@@ -75,7 +76,6 @@ const Command = () => {
 			})
 		}  
 		if (store && store.listers &&  Object.keys(store.listers).length) {
-			console.log('listers', store.listers)
 			Object.keys(store.listers).forEach(key => {
 				if (Array.isArray(store.listers[key])) {
 					store.listers[key].forEach(fn => fn({ result: datas, searchKey: value, searchIdMap}))
